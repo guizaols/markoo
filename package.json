@@ -1,0 +1,16 @@
+{
+  "name": "markoo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "npm run test:unit",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test",
+    "benchmark:search": "node scripts/benchmark-search.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0",
+    "vitest": "^2.1.5"
+  }
+}
