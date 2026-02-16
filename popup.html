@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Markoo</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="header">
+        <div>
+          <p class="eyebrow" id="eyebrow">Chrome Extension</p>
+          <h1>Markoo</h1>
+        </div>
+        <div class="header-actions">
+          <div class="theme-menu-wrap">
+            <button id="themeMenuBtn" class="btn ghost compact" type="button" aria-expanded="false" aria-controls="themeMenu">
+              <span id="themeMenuPrefix">Theme</span>: <span id="themeMenuLabel">Sapphire</span>
+            </button>
+            <div id="themeMenu" class="theme-menu" hidden>
+              <button class="theme-option" type="button" data-theme-value="sapphire">Sapphire</button>
+              <button class="theme-option" type="button" data-theme-value="graphite">Graphite</button>
+              <button class="theme-option" type="button" data-theme-value="sunset">Sunset</button>
+              <button class="theme-option" type="button" data-theme-value="mint">Mint</button>
+            </div>
+          </div>
+          <select id="languageSelect" class="header-select" title="Language">
+            <option value="auto">Language: Auto</option>
+            <option value="en">Language: English</option>
+            <option value="pt">Language: Portugues</option>
+            <option value="es">Language: Espanol</option>
+          </select>
+          <select id="densitySelect" class="header-select" title="Card density">
+            <option value="comfortable">Density: Comfortable</option>
+            <option value="compact">Density: Compact</option>
+          </select>
+          <button id="exportBtn" class="btn ghost compact" type="button">Export</button>
+
+          <button id="importBtn" class="btn ghost compact" type="button">Import</button>
+          <label class="sync-toggle" for="syncEnabled">
+            <input id="syncEnabled" type="checkbox" />
+            <span id="syncLabel">Sync</span>
+          </label>
+          <button id="refreshBtn" class="btn ghost" title="Refresh bookmarks">Refresh</button>
+        </div>
+      </header>
+
+      <section class="controls card">
+        <div class="control-row">
+          <input id="searchInput" type="search" placeholder="Search title, URL, or folder" />
+          <select id="sortSelect" title="Sort bookmarks">
+            <option value="date_desc">Date (newest)</option>
+            <option value="date_asc">Date (oldest)</option>
+            <option value="name_asc">Name (A-Z)</option>
+            <option value="name_desc">Name (Z-A)</option>
+          </select>
+        </div>
+
+        <div class="control-row compact control-row-toggle">
+          <button id="toggleFiltersBtn" class="btn ghost compact" type="button" aria-expanded="false" aria-controls="advancedFilters">More filters</button>
+        </div>
+
+        <section id="advancedFilters" class="advanced-filters" hidden>
+          <div class="control-row advanced">
+            <select id="domainFilter" title="Filter by site">
+              <option value="all">All sites</option>
+            </select>
+            <select id="recencyFilter" title="Filter by recency">
+              <option value="all">Any time</option>
+              <option value="7">Last 7 days</option>
+              <option value="30">Last 30 days</option>
+              <option value="90">Last 90 days</option>
+              <option value="365">Last year</option>
+            </select>
+          </div>
+
+          <div class="control-row advanced">
+            <button id="scanVisibleBtn" class="btn ghost compact" type="button">Scan visible</button>
+            <label class="meta-toggle" for="showDateMeta">
+              <input id="showDateMeta" type="checkbox" />
+              <span id="showDateMetaLabel">Show date</span>
+            </label>
+          </div>
+
+          <div class="control-row compact">
+            <p id="selectedFolderLabel" class="selected-folder">Target folder: Bookmarks bar</p>
+            <button id="toggleCreateBtn" class="btn">New bookmark</button>
+          </div>
+
+          <p id="uxHint" class="ux-hint">Shortcuts: <kbd>/</kbd> search, <kbd>N</kbd> new, <kbd>Esc</kbd> close panel, <kbd>E</kbd> edit, <kbd>Del</kbd> delete, <kbd>Ctrl/Cmd+A</kbd> select all visible</p>
+        </section>
+
+        <section id="createPanel" class="create-panel" hidden>
+          <div class="control-row compact">
+            <p id="panelHint" class="panel-hint">Quick actions</p>
+            <button id="bookmarkTabBtn" class="btn subtle">Add current tab</button>
+          </div>
+          <form id="createForm" class="create-form">
+            <input id="newTitle" type="text" placeholder="Title" required />
+            <input id="newUrl" type="url" placeholder="https://example.com" required />
+            <button id="createSubmitBtn" class="btn accent" type="submit">Add bookmark</button>
+          </form>
+        </section>
+      </section>
+
+      <section class="workspace">
+        <aside class="folders card">
+          <div class="list-header">
+            <h2 id="foldersHeading">Folders</h2>
+          </div>
+          <ul id="folderList" class="folder-list"></ul>
+        </aside>
+
+        <div class="list-wrap">
+          <div class="list-header">
+            <h2 id="bookmarksHeading">Bookmarks</h2>
+            <span id="countLabel" class="count-label">0 items</span>
+          </div>
+
+          <div id="bulkBar" class="bulk-bar">
+            <span id="selectedCount">0 selected</span>
+            <button id="findDuplicatesBtn" class="btn ghost compact" type="button">Find duplicates</button>
+            <button id="showAllBtn" class="btn ghost compact" type="button" hidden>Show all</button>
+            <select id="moveFolderSelect" title="Move selected to folder"></select>
+            <button id="moveSelectedBtn" class="btn compact" type="button">Move selected</button>
+            <button id="deleteSelectedBtn" class="btn ghost danger compact" type="button">Delete selected</button>
+            <button id="clearSelectionBtn" class="btn ghost compact" type="button">Clear</button>
+          </div>
+
+          <ul id="bookmarkList" class="bookmark-list"></ul>
+        </div>
+      </section>
+    </main>
+
+    <template id="bookmarkItemTemplate">
+      <li class="bookmark-item card" draggable="true">
+        <div class="item-main">
+          <input class="select-checkbox" type="checkbox" title="Select for batch actions" />
+          <button class="favorite-btn" type="button" title="Toggle favorite">☆</button>
+          <div class="item-text">
+            <a class="bookmark-link" target="_blank" rel="noreferrer"></a>
+            <p class="bookmark-meta"></p>
+          </div>
+        </div>
+        <div class="item-actions">
+          <button class="icon-btn edit-btn" type="button" aria-label="Edit bookmark" title="Edit bookmark">&#9998;</button>
+          <button class="icon-btn delete-btn" type="button" aria-label="Delete bookmark" title="Delete bookmark">&#128465;</button>
+        </div>
+      </li>
+    </template>
+    <div id="commandPaletteOverlay" class="overlay" hidden>
+      <section class="overlay-card" role="dialog" aria-modal="true" aria-labelledby="commandPaletteTitle">
+        <div class="overlay-header">
+          <h3 id="commandPaletteTitle">Command palette</h3>
+          <button id="commandPaletteClose" class="btn ghost compact" type="button">Esc</button>
+        </div>
+        <input id="commandPaletteInput" type="search" placeholder="Type an action" autocomplete="off" />
+        <ul id="commandPaletteList" class="palette-list" role="listbox" aria-label="Command actions"></ul>
+      </section>
+    </div>
+
+    <div id="onboardingOverlay" class="overlay" hidden>
+      <section class="overlay-card onboarding-card" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle">
+        <p class="eyebrow" id="onboardingEyebrow">Quick start</p>
+        <h3 id="onboardingTitle">Welcome to Markoo</h3>
+        <ol class="onboarding-list">
+          <li id="onboardingStep1">Search instantly by title, URL, or folder</li>
+          <li id="onboardingStep2">Use Ctrl/Cmd+K to run quick actions</li>
+          <li id="onboardingStep3">Find duplicates and clean in batch</li>
+        </ol>
+        <div class="overlay-actions">
+          <button id="onboardingImport" class="btn ghost" type="button">Import bookmarks</button>
+          <button id="onboardingStart" class="btn" type="button">Start</button>
+        </div>
+      </section>
+    </div>
+    <div id="editOverlay" class="overlay" hidden>
+      <section class="overlay-card" role="dialog" aria-modal="true" aria-labelledby="editTitleHeading">
+        <div class="overlay-header">
+          <h3 id="editTitleHeading">Edit bookmark</h3>
+          <button id="editCancelBtn" class="btn ghost compact" type="button">Cancel</button>
+        </div>
+        <form id="editForm" class="create-form">
+          <input id="editTitleInput" type="text" placeholder="Title" required />
+          <input id="editUrlInput" type="url" placeholder="https://example.com" required />
+          <div class="overlay-actions">
+            <button id="editSaveBtn" class="btn" type="submit">Save</button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+
+    <input id="importFileInput" type="file" accept=".html,.htm,.json,text/html,application/json" hidden />
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script src="popup.js" type="module"></script>
+  </body>
+</html>

@@ -1,0 +1,48 @@
+{
+  "manifest_version": 3,
+  "name": "Markoo",
+  "version": "1.0.0",
+  "description": "Manage Chrome bookmarks with a modern, fast interface.",
+  "permissions": [
+    "bookmarks",
+    "tabs",
+    "storage",
+    "sidePanel"
+  ],
+  "action": {
+    "default_title": "Markoo"
+  },
+  "side_panel": {
+    "default_path": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "commands": {
+    "quick-save-current-tab": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Y",
+        "mac": "Command+Shift+Y"
+      },
+      "description": "Save active tab to bookmarks"
+    },
+    "open-markoo-panel": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+M",
+        "mac": "Command+Shift+M"
+      },
+      "description": "Open Markoo side panel"
+    },
+    "quick-capture-modal": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+K",
+        "mac": "Command+Shift+K"
+      },
+      "description": "Open quick capture with current tab"
+    }
+  },
+  "host_permissions": [
+    "<all_urls>"
+  ]
+}
